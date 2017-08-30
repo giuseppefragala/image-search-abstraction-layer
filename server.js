@@ -11,9 +11,11 @@ app.get('/', function(req, res) {
       res.sendFile(path.join(__dirname + '/index.htm'));
 });
 var searchString;
+var offset;
 var sysdate;
 app.get('/api/imagesearch/:searchString', function(req, res, next) {
   searchString = req.params.searchString;
+  offset = req.query.offset;
   sysdate=new Date().toISOString();
   var arr = []
   arr.push({term:searchString, when: sysdate})
@@ -25,13 +27,16 @@ app.get('/api/imagesearch/:searchString', function(req, res, next) {
       request('https://www.googleapis.com/customsearch/v1?q=' + searchString + '&cx=' + process.env.cx + '&key=' + process.env.key + '&searchType=image',function(err,result,body) {
       var images = [];
           var data = JSON.parse(body);
-          data.items.forEach(function(val) {
-            var obj = {
-              image: val.link,
-              text: val.snippet,
-              source: val.link
+          data.items.forEach(function(item) {
+            if(images.length < offset){
+              var obj = {
+                url: item.link,
+                snippet: item.snippet,
+                thumbnail: item.image.thumbnailLink,
+                context: item.image.contextLink
+              }
+              images.push(obj);
             }
-            images.push(obj);
           })
           res.send(images);
       })  
@@ -85,7 +90,7 @@ MongoClient.connect(connUrl,function (err, db) {
     var collection = db.collection('imagesearch');
     var res;
     // Perform a simple find and return all the documents
-    collection.find({},{_id:0, limit:10}).toArray(function(err, docs) { 
+    collection.find({},{_id:0},{limit: 10}).sort({when: -1}).toArray(function(err, docs) { 
         //res = JSON.stringify(docs);
         response.send(docs)
         db.close();
