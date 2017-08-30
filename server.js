@@ -85,9 +85,9 @@ MongoClient.connect(connUrl,function (err, db) {
     var collection = db.collection('imagesearch');
     var res;
     // Perform a simple find and return all the documents
-    collection.find({},{_id:0}).toArray(function(err, docs) { 
-        res = JSON.stringify(docs);
-        response.send(res)
+    collection.find({},{_id:0, limit:10}).toArray(function(err, docs) { 
+        //res = JSON.stringify(docs);
+        response.send(docs)
         db.close();
     });
 });
