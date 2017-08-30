@@ -19,6 +19,7 @@
   "homepage": "https://github.com/giuseppefragala/image-search-abstraction-layer#readme",
   "dependencies": {
     "express": "^4.15.4",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "request": "^2.81.0"
   }
 }
